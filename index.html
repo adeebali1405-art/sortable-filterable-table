@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Language Registry – Sortable & Filterable Table By Adeeb Ali Software Developer</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef1f5;--surface:#fff;--ink:#16202e;--muted:#5d6b7e;--line:#d9dfe7;--head:#f5f7fa;
+  --accent:#0f6b6b;--accent-ink:#fff;--accent-soft:#dff0ee;--danger:#b4361f;--danger-soft:#fbe6e1;--shadow:0 1px 2px rgba(22,32,46,.06),0 8px 24px rgba(22,32,46,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e141b;--surface:#161e28;--ink:#e6ebf2;--muted:#93a1b5;--line:#27323f;--head:#1b2530;
+  --accent:#3fc1b6;--accent-ink:#06201d;--accent-soft:#16363a;--danger:#ff8a73;--danger-soft:#3a1f1a;--shadow:none}}
+:root[data-theme="dark"]{
+  --bg:#0e141b;--surface:#161e28;--ink:#e6ebf2;--muted:#93a1b5;--line:#27323f;--head:#1b2530;
+  --accent:#3fc1b6;--accent-ink:#06201d;--accent-soft:#16363a;--danger:#ff8a73;--danger-soft:#3a1f1a;--shadow:none}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 20px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+h1{font:700 clamp(26px,4vw,36px)/1.15 Georgia,"Times New Roman",serif;margin:0 0 6px;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:56ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;font-weight:600;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.danger:hover{background:var(--danger-soft);border-color:var(--danger)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.icon-btn{width:38px;height:38px;padding:0;display:grid;place-items:center;font-size:17px}
+
+.add{padding:18px;margin-bottom:16px}
+.add h2,dialog h2{font-size:16px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:2fr 1.2fr 1fr auto;gap:12px;align-items:end}
+label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-height:38px}
+input:focus,select:focus{border-color:var(--accent);outline:2px solid var(--accent-soft)}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin:8px 0 0}
+
+.tools{display:flex;flex-wrap:wrap;gap:10px;padding:14px;border-bottom:1px solid var(--line);align-items:center}
+.tools .search{flex:1 1 220px;position:relative}
+.tools .search input{padding-left:34px}
+.tools .search span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.tools select,.tools input[type=number]{width:auto;flex:0 0 auto}
+.tools input[type=number]{width:96px}
+.count{margin-left:auto;color:var(--muted);font-size:13px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+thead th{background:var(--head);font-size:13px;color:var(--muted);white-space:nowrap;padding:0}
+thead th button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:6px;width:100%;padding:12px 16px;cursor:pointer;font-weight:700}
+thead th button:hover{color:var(--ink)}
+thead th button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+thead th.sorted{color:var(--ink)}
+.arrow{font-size:11px;opacity:.35}
+th.sorted .arrow{opacity:1;color:var(--accent)}
+th.act,td.act{text-align:right;width:1%;white-space:nowrap}
+th.act{padding:12px 16px;font-weight:700}
+tbody tr:hover{background:var(--head)}
+tbody tr:last-child td{border-bottom:0}
+td.year{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.empty{padding:44px 20px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);margin-bottom:4px}
+
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:22px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,16,24,.55)}
+dialog form{display:grid;gap:12px}
+.row{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:10}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:700px){.grid{grid-template-columns:1fr 1fr}.grid .btn{grid-column:1/-1}.count{margin-left:0;width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Language registry By Adeeb Ali Software Developer</h1>
+      <p>A table you can sort, filter, edit and extend. Click a column heading to sort; changes are saved in your browser.</p>
+    </div>
+    <button class="btn icon-btn" id="theme" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+  </header>
+
+  <section class="card add" aria-labelledby="addTitle">
+    <h2 id="addTitle">Add a language</h2>
+    <form id="addForm" class="grid" novalidate>
+      <label>Name<input id="aName" required maxlength="40" placeholder="e.g. Kotlin" autocomplete="off"></label>
+      <label>Category<select id="aCat" required></select></label>
+      <label>Year<input id="aYear" type="number" required placeholder="e.g. 2011"></label>
+      <button class="btn primary" type="submit">Add language</button>
+    </form>
+    <p class="err" id="addErr" role="alert"></p>
+  </section>
+
+  <section class="card" aria-label="Language table">
+    <div class="tools">
+      <div class="search"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="Search by name" aria-label="Search by name"></div>
+      <select id="fCat" aria-label="Filter by category"></select>
+      <input id="yFrom" type="number" placeholder="From year" aria-label="From year">
+      <input id="yTo" type="number" placeholder="To year" aria-label="To year">
+      <button class="btn" id="clear">Clear filters</button>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th scope="col" data-key="name" aria-sort="none"><button type="button">Name <span class="arrow">▲</span></button></th>
+          <th scope="col" data-key="category" aria-sort="none"><button type="button">Category <span class="arrow">▲</span></button></th>
+          <th scope="col" data-key="year" aria-sort="none"><button type="button">Year <span class="arrow">▲</span></button></th>
+          <th scope="col" class="act">Actions</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden><strong>No languages match</strong>Clear the filters or add a new language above.</div>
+  </section>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <form id="editForm" method="dialog" novalidate>
+    <h2 id="dlgTitle">Edit language</h2>
+    <label>Name<input id="eName" required maxlength="40"></label>
+    <label>Category<select id="eCat"></select></label>
+    <label>Year<input id="eYear" type="number" required></label>
+    <p class="err" id="editErr" role="alert"></p>
+    <div class="row">
+      <button class="btn" type="button" id="cancel">Cancel</button>
+      <button class="btn primary" type="submit">Save changes</button>
+    </div>
+  </form>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+  const CATS = ["Systems","Scripting","Web","Data","Functional"];
+  const KEY = "language-registry-v1";
+  const SEED = [
+    ["Ali","Systems",1972],["Ahmed","Systems",1985],["Arsalan","Systems",2010],["Ahsan","Systems",2009],
+    ["Ayan","Scripting",1991],["Affan","Scripting",1995],["Abdullah","Scripting",1987],
+    ["Abbas","Web",1995],["umair","Web",2012],["Farooq","Web",1995],
+    ["Khalid","Data",1974],["Rashid","Data",1993],["Akram","Functional",1990],["Naveed","Functional",2011]
+  ];
+  let nextId = 1;
+  const seed = () => SEED.map(([name,category,year]) => ({id:nextId++,name,category,year}));
+  let items;
+  try { items = JSON.parse(localStorage.getItem(KEY)); } catch(e) { items = null; }
+  if (!Array.isArray(items) || !items.length) items = seed();
+  nextId = Math.max(0, ...items.map(i => i.id)) + 1;
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch(e) {} };
+
+  const $ = id => document.getElementById(id);
+  const state = { key:"year", dir:1 };
+  const maxYear = new Date().getFullYear() + 1;
+
+  // Populate selects
+  const opts = list => list.map(c => `<option>${c}</option>`).join("");
+  $("aCat").innerHTML = opts(CATS);
+  $("eCat").innerHTML = opts(CATS);
+  $("fCat").innerHTML = `<option value="">All categories</option>` + opts(CATS);
+
+  const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function visible() {
+    const q = $("q").value.trim().toLowerCase();
+    const cat = $("fCat").value;
+    const from = $("yFrom").value === "" ? -Infinity : +$("yFrom").value;
+    const to = $("yTo").value === "" ? Infinity : +$("yTo").value;
+    const list = items.filter(i =>
+      i.name.toLowerCase().includes(q) && (!cat || i.category === cat) && i.year >= from && i.year <= to);
+    const k = state.key, d = state.dir;
+    return list.sort((a,b) => {
+      const r = k === "year" ? a.year - b.year : a[k].localeCompare(b[k], undefined, {sensitivity:"base"});
+      return (r || a.name.localeCompare(b.name)) * d;
+    });
+  }
+
+  function render() {
+    const list = visible();
+    $("rows").innerHTML = list.map(i => `
+      <tr data-id="${i.id}">
+        <td><strong>${esc(i.name)}</strong></td>
+        <td><span class="tag">${esc(i.category)}</span></td>
+        <td class="year">${i.year}</td>
+        <td class="act">
+          <button class="btn sm" data-act="edit" aria-label="Edit ${esc(i.name)}">Edit</button>
+          <button class="btn sm danger" data-act="del" aria-label="Delete ${esc(i.name)}">Delete</button>
+        </td>
+      </tr>`).join("");
+    $("empty").hidden = list.length > 0;
+    $("count").textContent = `Showing ${list.length} of ${items.length}`;
+    document.querySelectorAll("thead th[data-key]").forEach(th => {
+      const on = th.dataset.key === state.key;
+      th.classList.toggle("sorted", on);
+      th.setAttribute("aria-sort", on ? (state.dir === 1 ? "ascending" : "descending") : "none");
+      th.querySelector(".arrow").textContent = on && state.dir === -1 ? "▼" : "▲";
+    });
+  }
+
+  let tt;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function validate(name, year, ignoreId) {
+    if (!name.trim()) return "Enter a name.";
+    if (year === "" || !Number.isInteger(+year)) return "Enter a whole-number year.";
+    if (+year < 1940 || +year > maxYear) return `Year must be between 1940 and ${maxYear}.`;
+    if (items.some(i => i.id !== ignoreId && i.name.toLowerCase() === name.trim().toLowerCase()))
+      return `"${name.trim()}" is already in the table.`;
+    return "";
+  }
+
+  // Sorting
+  document.querySelectorAll("thead th[data-key]").forEach(th =>
+    th.querySelector("button").addEventListener("click", () => {
+      const k = th.dataset.key;
+      state.dir = state.key === k ? -state.dir : 1;
+      state.key = k; render();
+    }));
+
+  // Filtering
+  ["q","fCat","yFrom","yTo"].forEach(id => $(id).addEventListener("input", render));
+  $("clear").addEventListener("click", () => {
+    ["q","fCat","yFrom","yTo"].forEach(id => $(id).value = "");
+    render();
+  });
+
+  // Add
+  $("addForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const name = $("aName").value, year = $("aYear").value;
+    const err = validate(name, year);
+    $("addErr").textContent = err;
+    if (err) return;
+    items.push({id:nextId++, name:name.trim(), category:$("aCat").value, year:+year});
+    save(); render();
+    $("addForm").reset();
+    toast(`Added ${name.trim()}`);
+    $("aName").focus();
+  });
+
+  // Edit / delete (event delegation)
+  let editing = null;
+  $("rows").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const id = +btn.closest("tr").dataset.id;
+    const item = items.find(i => i.id === id);
+    if (btn.dataset.act === "edit") {
+      editing = id;
+      $("eName").value = item.name; $("eCat").value = item.category; $("eYear").value = item.year;
+      $("editErr").textContent = "";
+      $("dlg").showModal();
+    } else if (confirm(`Delete ${item.name}?`)) {
+      items = items.filter(i => i.id !== id);
+      save(); render(); toast(`Deleted ${item.name}`);
+    }
+  });
+
+  $("editForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const err = validate($("eName").value, $("eYear").value, editing);
+    $("editErr").textContent = err;
+    if (err) return;
+    const item = items.find(i => i.id === editing);
+    item.name = $("eName").value.trim(); item.category = $("eCat").value; item.year = +$("eYear").value;
+    save(); render(); $("dlg").close(); toast("Changes saved");
+  });
+  $("cancel").addEventListener("click", () => $("dlg").close());
+  $("dlg").addEventListener("click", e => { if (e.target === $("dlg")) $("dlg").close(); });
+
+  // Theme
+  $("theme").addEventListener("click", () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
